@@ -6,7 +6,7 @@ RUN apk add --no-cache tzdata \
 COPY requirements.txt /usr/src/app/requirements.txt
 WORKDIR /usr/src/app
 RUN pip install --no-cache-dir -r requirements.txt
-COPY [ "cloudflare.py", "config.py", "docker-entrypoint.sh", "/usr/src/app/" ]
+COPY [ "cloudflare-cli.py", "config.py", "docker-entrypoint.sh", "/usr/src/app/" ]
 
 ENTRYPOINT [ "./docker-entrypoint.sh" ]
-CMD [ "./cloudflare.py" ]
+CMD [ "./cloudflare-cli.py" ]

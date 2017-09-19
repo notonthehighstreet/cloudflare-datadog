@@ -1,10 +1,10 @@
 import logging
 
-from CloudFlare import CloudFlare
+import CloudFlare
 from decouple import Csv, config
 
 LOG_LEVEL = config('LOG_LEVEL', default='INFO', cast=lambda x: getattr(logging, x))
-FETCH_INTERVAL = config('FETCH_INTERVAL', default=1, cast=int)
+FETCH_INTERVAL = config('FETCH_INTERVAL', default=60, cast=int)
 DEAD_MANS_SNITCH_URL = config('DEAD_MANS_SNITCH_URL', None)
 
 # Cloudflare configuration
@@ -18,7 +18,7 @@ if (not (ZONE or DOMAIN)) or (ZONE and DOMAIN):
     print('One of ZONE or DOMAIN must be provided')
 
 if DOMAIN:
-    cf = CloudFlare(email=CF_API_EMAIL, token=CF_API_KEY)
+    cf = CloudFlare.CloudFlare(email=CF_API_EMAIL, token=CF_API_KEY)
     ZONE = cf.zones.get(params={'name': DOMAIN})[0]['id']
 
 # Datadog configuration

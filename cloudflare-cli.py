@@ -7,10 +7,10 @@ from collections import defaultdict
 
 import babis
 import datadog
-from CloudFlare import CloudFlare
+import CloudFlare
 from apscheduler.schedulers.blocking import BlockingScheduler
 from dateutil import tz
-
+from pprint import pprint
 import config
 
 CLOUDFLARE_HTTP_STATUS_CODES = [200, 206, 301, 302, 304, 400, 403,
@@ -26,11 +26,11 @@ until = None
 utc_tz = tz.gettz('UTC')
 local_tz = tz.gettz()
 
-cf = CloudFlare(email=config.CF_API_EMAIL, token=config.CF_API_KEY)
+cf = CloudFlare.CloudFlare(email=config.CF_API_EMAIL, token=config.CF_API_KEY)
 datadog.initialize(api_key=config.DATADOG_API_KEY, app_key=config.DATADOG_APP_KEY)
 
 
-@scheduler.scheduled_job('interval', minutes=config.FETCH_INTERVAL,
+@scheduler.scheduled_job('interval', seconds=config.FETCH_INTERVAL,
                          max_instances=1, coalesce=True)
 @babis.decorator(ping_after=config.DEAD_MANS_SNITCH_URL)
 def job_cloudflare2datadog():
@@ -56,7 +56,7 @@ def job_cloudflare2datadog():
         # Status codes
         for status_code in CLOUDFLARE_HTTP_STATUS_CODES:
             value = timespan['requests']['http_status'].get(str(status_code), 0)
-            name = config.STATS_KEY_PREFIX + 'status_codes.{}'.format(status_code)
+            name = config.STATS_KEY_PREFIX + 'requests.status,status:{},status_category:{}'.format(status_code,status_code/100*100)
             _add_data(name, value)
 
         # Requests
@@ -83,7 +83,7 @@ def job_cloudflare2datadog():
         name = config.STATS_KEY_PREFIX + 'pageviews.'
         _add_data(name + 'all', timespan['pageviews']['all'])
         for engine, value in timespan['pageviews'].get('search_engines', {}).items():
-            _add_data(name + 'search_engines.' + engine, value)
+            _add_data(name + 'search_engines,search_engine:' + engine, value)
 
         # IPs
         name = config.STATS_KEY_PREFIX + 'uniques.'
@@ -91,8 +91,18 @@ def job_cloudflare2datadog():
 
     if metrics:
         logger.debug('Sending metrics to Datadog')
-        data = [dict(metric=metric, points=points, tags=config.TAGS)
-                for metric, points in metrics.items()]
+        data = []
+        for key, points in metrics.items():
+            tags = key.split(',')
+            metric = tags.pop(0)
+            data.append(dict(
+                metric=metric,
+                points=points,
+                tags=config.TAGS + tags
+            ))
+        # data = [dict(metric=metric, points=points, tags=config.TAGS)
+        #         for metric, points in metrics.items()]
+        pprint(data)
         datadog.api.Metric.send(data)
     else:
         logger.debug('No metrics to send to Datadog')
