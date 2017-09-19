@@ -4,7 +4,7 @@ import CloudFlare
 from decouple import Csv, config
 
 LOG_LEVEL = config('LOG_LEVEL', default='INFO', cast=lambda x: getattr(logging, x))
-FETCH_INTERVAL = config('FETCH_INTERVAL', default=60, cast=int)
+FETCH_INTERVAL = config('FETCH_INTERVAL', default=1, cast=int)
 DEAD_MANS_SNITCH_URL = config('DEAD_MANS_SNITCH_URL', None)
 
 # Cloudflare configuration

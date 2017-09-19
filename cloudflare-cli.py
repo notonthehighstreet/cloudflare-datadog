@@ -30,7 +30,7 @@ cf = CloudFlare.CloudFlare(email=config.CF_API_EMAIL, token=config.CF_API_KEY)
 datadog.initialize(api_key=config.DATADOG_API_KEY, app_key=config.DATADOG_APP_KEY)
 
 
-@scheduler.scheduled_job('interval', seconds=config.FETCH_INTERVAL,
+@scheduler.scheduled_job('interval', minutes=config.FETCH_INTERVAL,
                          max_instances=1, coalesce=True)
 @babis.decorator(ping_after=config.DEAD_MANS_SNITCH_URL)
 def job_cloudflare2datadog():
