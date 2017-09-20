@@ -57,6 +57,7 @@ def job_cloudflare2datadog():
         for status_code in CLOUDFLARE_HTTP_STATUS_CODES:
             value = timespan['requests']['http_status'].get(str(status_code), 0)
             name = config.STATS_KEY_PREFIX + 'requests.status,status:{},status_category:{}'.format(status_code,status_code/100*100)
+            if config.LOG_LEVEL == "DEBUG": pprint(data)
             _add_data(name, value)
 
         # Requests
@@ -102,7 +103,7 @@ def job_cloudflare2datadog():
             ))
         # data = [dict(metric=metric, points=points, tags=config.TAGS)
         #         for metric, points in metrics.items()]
-        pprint(data)
+        if config.LOG_LEVEL == "DEBUG": pprint(data)
         datadog.api.Metric.send(data)
     else:
         logger.debug('No metrics to send to Datadog')
