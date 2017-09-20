@@ -56,7 +56,12 @@ def job_cloudflare2datadog():
         # Status codes
         for status_code in CLOUDFLARE_HTTP_STATUS_CODES:
             value = timespan['requests']['http_status'].get(str(status_code), 0)
-            name = config.STATS_KEY_PREFIX + 'requests.status,status:{},status_category:{}'.format(status_code,status_code/100*100)
+            tags = [
+                'status:'+format(status_code),
+                'status_category:'+format(status_code/100*100),
+                'status_sub_category:'+format(status_code/10*10)
+            ]
+            name = config.STATS_KEY_PREFIX + 'requests.status,' + ','.join(tags)
             if config.LOG_LEVEL == "DEBUG": pprint(data)
             _add_data(name, value)
 
