@@ -106,8 +106,6 @@ def job_cloudflare2datadog():
                 points=points,
                 tags=config.TAGS + tags
             ))
-        # data = [dict(metric=metric, points=points, tags=config.TAGS)
-        #         for metric, points in metrics.items()]
         if config.LOG_LEVEL == "DEBUG": pprint(data)
         datadog.api.Metric.send(data)
     else:
