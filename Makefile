@@ -23,6 +23,9 @@ shell: docker-shell
 ## stop & remove all containers in stack
 stop: docker-stop
 
+## restart all containers in stack
+restart: docker-restart
+
 ## follow container logs
 logs: docker-logs
 
@@ -49,3 +52,4 @@ docker-attach:
 docker-stop:
 	docker stop ${SHORT_NAME} && docker rm ${SHORT_NAME}
 
+docker-restart: docker-stop docker-run
